@@ -1,38 +1,40 @@
 import pretty_midi
 import subprocess  # For command-line interaction
 
-# Create a PrettyMIDI object (same as before)
+# Create a PrettyMIDI object
 midi_data = pretty_midi.PrettyMIDI()
 instrument_program = pretty_midi.instrument_name_to_program('Acoustic Grand Piano')
 piano = pretty_midi.Instrument(program=instrument_program)
-notes = [
-    pretty_midi.Note(velocity=100, pitch=60, start=0, end=0.5),  # C4
-    pretty_midi.Note(velocity=100, pitch=62, start=0.5, end=1.0), # D4
-    pretty_midi.Note(velocity=100, pitch=64, start=1.0, end=1.5), # E4
-]
+
+# Create a longer melody (example, you can modify this)
+notes = []
+current_time = 0
+for i in range(30):  # Create 30 notes
+    pitch = 60 + i % 12  # C4 to B4
+    note = pretty_midi.Note(velocity=100, pitch=pitch, start=current_time, end=current_time + 0.5)
+    notes.append(note)
+    current_time += 0.5
+
 piano.notes.extend(notes)
 midi_data.instruments.append(piano)
 midi_data.write('sounds/melody.mid')
 
-
-# Use Timidity to synthesize MIDI to WAV
+# Synthesize MIDI to WAV using Timidity
 try:
-    # The -Ow flag tells Timidity to output a WAV file.  Adjust as needed.
-    # The -o option specifies the output file.
-    subprocess.run(['timidity', 'sounds/melody.mid', '-Ow', '-o', 'sounds/melody.wav'], check=True) 
+    subprocess.run(['timidity', 'sounds/melody.mid', '-Ow', '-o', 'sounds/melody.wav'], check=True)
+    print("MIDI synthesized to WAV.")
 
-    # Convert WAV to MP3 using FFmpeg
+    # Convert WAV to MP3 using FFmpeg (optional)
     try:
         subprocess.run(['ffmpeg', '-i', 'sounds/melody.wav', 'sounds/melody.mp3'], check=True)
-        print("MIDI and MP3 files created!")
+        print("WAV converted to MP3.")
     except FileNotFoundError:
-        print("FFmpeg not found. WAV file created, but MP3 conversion requires FFmpeg.")
-        print("Install FFmpeg (e.g., 'sudo apt-get install ffmpeg' on Debian/Ubuntu).")
+        print("FFmpeg not found. WAV file created, but MP3 conversion failed.")
     except subprocess.CalledProcessError as e:
-        print(f"Error converting WAV to MP3 using FFmpeg: {e}")
+        print(f"Error converting WAV to MP3: {e}")
+
 
 except FileNotFoundError:
-    print("Timidity not found.  MIDI file created, but audio conversion requires Timidity++.")
-    print("Install Timidity++ (e.g., 'sudo apt-get install timidity' on Debian/Ubuntu).")
+    print("Timidity++ not found. MIDI file created, but synthesis failed.")  # More informative message
 except subprocess.CalledProcessError as e:
-    print(f"Error synthesizing MIDI with Timidity: {e}")
+    print(f"Error during MIDI synthesis: {e}")
