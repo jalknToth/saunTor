@@ -12,18 +12,18 @@ notes = [
 ]
 piano.notes.extend(notes)
 midi_data.instruments.append(piano)
-midi_data.write('melody.mid')
+midi_data.write('sounds/melody.mid')
 
 
 # Use Timidity to synthesize MIDI to WAV
 try:
     # The -Ow flag tells Timidity to output a WAV file.  Adjust as needed.
     # The -o option specifies the output file.
-    subprocess.run(['timidity', 'melody.mid', '-Ow', '-o', 'melody.wav'], check=True) 
+    subprocess.run(['timidity', 'sounds/melody.mid', '-Ow', '-o', 'sounds/melody.wav'], check=True) 
 
     # Convert WAV to MP3 using FFmpeg
     try:
-        subprocess.run(['ffmpeg', '-i', 'melody.wav', 'melody.mp3'], check=True)
+        subprocess.run(['ffmpeg', '-i', 'sounds/melody.wav', 'sounds/melody.mp3'], check=True)
         print("MIDI and MP3 files created!")
     except FileNotFoundError:
         print("FFmpeg not found. WAV file created, but MP3 conversion requires FFmpeg.")
